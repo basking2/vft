@@ -11,8 +11,8 @@ type Server struct {
 	log         *logrus.Entry
 }
 
-func New(port string) (*Server, error) {
-	l, err := net.Listen("tcp", "127.0.0.1" + ":" + port)
+func New(bindAddress string) (*Server, error) {
+	l, err := net.Listen("tcp", bindAddress)
 	if err != nil {
 		return nil, err
 	}

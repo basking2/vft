@@ -24,7 +24,7 @@ func New() (*Client, error) {
 	var err error
 
 	// Ports we will randomly sample for starting traps
-	ports := []string{"8080", "8081", "9000", "6969", "8443", "2222", "6667", "6668", "6669", "6697"}
+	ports := []string{"8080", "8081", "9000", "6969", "8443", "2222", "6667", "6668", "6669", "6697", "80", "53", "22", "21", "69", "443", "110", "5432"}
 
 	rand.Seed(time.Now().Unix())
 	s := rand.NewSource(time.Now().Unix())
@@ -77,8 +77,8 @@ func startTrap(l net.Listener, server string, log *logrus.Entry) error {
 func handleConnection(conn net.Conn, log *logrus.Entry, server string) {
 	// Generate report
 	time := time.Now().UTC()
-	dport := conn.LocalAddr()
-	sport := conn.RemoteAddr()
+	sport := conn.LocalAddr()
+	dport := conn.RemoteAddr()
 	report := fmt.Sprintf("{'type': 'connection', 'time': '%s', 'sport':'%s', 'dport': '%s'}", time, dport, sport)
 	go reportConnection(server, log, report)
 
