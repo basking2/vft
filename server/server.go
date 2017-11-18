@@ -3,7 +3,6 @@ package Server
 import (
 	"fmt"
 	"net"
-	"time"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,15 +35,17 @@ func Serve(s *Server) {
 		if err != nil {
 			go s.log.Error(err.Error())
 		} else {
-			go s.log.Info(handleInput(conn))
+			go handleInput(conn, s.log)
 		}
 	}
 }
 
-func handleInput(conn net.Conn) string {
-	time := time.Now().UTC()
-	dport := conn.LocalAddr()
-	sport := conn.RemoteAddr()
-	conn.Close()
-	return fmt.Sprintf("{'timestamp':'%s','dport':'%s','sport':%s'}\n", time, dport, sport)
+func handleInput(conn net.Conn, log *logrus.Entry) () {
+	buf := make([]byte, 1024)
+	_, err := conn.Read(buf)
+	if err != nil {
+		log.Error(err.Error())
+	} else {
+		log.Info(fmt.Sprintf(string(buf)))
+	}
 }

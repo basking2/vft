@@ -69,13 +69,20 @@ func startTrap(l net.Listener, server string, log *logrus.Entry) error {
 			log.Error(err.Error())
 		} else {
 			log.Info(fmt.Sprintf("Detected event on %s", l.Addr()))
-			go handleConnection(conn, log)
-			go reportConnection(server, log)
+			go handleConnection(conn, log, server)
 		}
 	}
 }
 
-func handleConnection(conn net.Conn, log *logrus.Entry) {
+func handleConnection(conn net.Conn, log *logrus.Entry, server string) {
+	// Generate report
+	time := time.Now().UTC()
+	dport := conn.LocalAddr()
+	sport := conn.RemoteAddr()
+	report := fmt.Sprintf("{'type': 'connection', 'time': '%s', 'sport':'%s', 'dport': '%s'}", time, dport, sport)
+	go reportConnection(server, log, report)
+
+	// Respond and close
 	buf := make([]byte, 1024)
 	_, err := conn.Read(buf)
 	if err != nil {
@@ -86,12 +93,12 @@ func handleConnection(conn net.Conn, log *logrus.Entry) {
 	conn.Close()
 }
 
-func reportConnection(server string, log *logrus.Entry) {
+func reportConnection(server string, log *logrus.Entry, report string) {
 	conn, err := net.Dial("tcp", server)
 	if err != nil {
 		log.Error("Error connecting to server: " + err.Error())
 		return
 	}
-	conn.Write([]byte("Connection received"))
+	conn.Write([]byte(report))
 	conn.Close()
 }
