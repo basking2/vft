@@ -1,20 +1,19 @@
 package Client
 
 import (
-	"net"
-	"github.com/sirupsen/logrus"
 	"fmt"
+	"net"
 )
 
-func startTrap(l net.Listener, server string, log *logrus.Entry) error {
-        for {
-                conn, err := l.Accept()
-                if err != nil {
-                        log.Error(fmt.Sprintf("Unable to handle connection on %s", l.Addr()))
-                        log.Error(err.Error())
-                } else {
-                        log.Info(fmt.Sprintf("Detected event on %s", l.Addr()))
-                        go handleConnection(conn, log, server)
-                }
-        }
+func startTrap(l net.Listener, server string, c *Client) error {
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			c.Log.Error(fmt.Sprintf("Unable to handle connection on %s", l.Addr()))
+			c.Log.Error(err.Error())
+		} else {
+			c.Log.Info(fmt.Sprintf("Detected event on %s", l.Addr()))
+			go handleConnection(conn, server, c)
+		}
+	}
 }

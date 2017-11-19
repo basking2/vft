@@ -1,37 +1,53 @@
 package Client
 
 import (
-	"fmt"
-	"github.com/sirupsen/logrus"
+	"encoding/json"
+	"github.com/satori/go.uuid"
 	"net"
 	"time"
 )
 
-func handleConnection(conn net.Conn, log *logrus.Entry, server string) {
+type Report struct {
+	Source      net.Addr
+	Dest        net.Addr
+	Timestamp   time.Time
+	ClientId    uuid.UUID
+	MessageType string
+}
+
+func handleConnection(conn net.Conn, s string, c *Client) {
 	// Generate report
-	time := time.Now().UTC()
-	sport := conn.LocalAddr()
-	dport := conn.RemoteAddr()
-	report := fmt.Sprintf("{'type': 'connection', 'time': '%s', 'sport':'%s', 'dport': '%s'}", time, dport, sport)
-	go reportConnection(server, log, report)
+	r := Report{
+		Dest:        conn.LocalAddr(),
+		Source:      conn.RemoteAddr(),
+		Timestamp:   time.Now().UTC(),
+		ClientId:    c.Id,
+		MessageType: "report",
+	}
+	go reportConnection(s, c, &r)
 
 	// Respond and close
 	buf := make([]byte, 1024)
 	_, err := conn.Read(buf)
 	if err != nil {
-		log.Error("Error reading: " + err.Error())
+		c.Log.Error("Error reading: " + err.Error())
 		return
 	}
 	conn.Write([]byte("Connection received."))
 	conn.Close()
 }
 
-func reportConnection(server string, log *logrus.Entry, report string) {
-	conn, err := net.Dial("tcp", server)
+func reportConnection(s string, c *Client, r *Report) {
+	conn, err := net.Dial("tcp", s)
 	if err != nil {
-		log.Error("Error connecting to server: " + err.Error())
+		c.Log.Error("Error connecting to server: " + err.Error())
 		return
 	}
-	conn.Write([]byte(report))
+	b, err := json.Marshal(r)
+	if err != nil {
+		c.Log.Error("Unable to marshal report!")
+		return
+	}
+	conn.Write([]byte(b))
 	conn.Close()
 }
