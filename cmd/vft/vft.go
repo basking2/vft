@@ -60,11 +60,11 @@ func main() {
 			Name:  "client",
 			Usage: "Run VFT in client mode",
 			Action: func(c *cli.Context) error {
-				client, err := Client.New()
+				v, err := Client.New()
 				if err != nil {
 					return err
 				}
-				Client.Run(client, serverAddress)
+				Client.Run(v, serverAddress)
 				fmt.Println("Press Ctrl+C to end")
 				waitForCtrlC()
 				return nil
