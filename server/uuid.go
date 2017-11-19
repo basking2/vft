@@ -7,4 +7,3 @@ import (
 func generateUUID() uuid.UUID {
 	return uuid.NewV4()
 }
-
