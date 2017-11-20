@@ -48,6 +48,6 @@ func reportConnection(s string, c *Client, r *Report) {
 		c.Log.Error("Unable to marshal report!")
 		return
 	}
-	conn.Write([]byte(b))
+	conn.Write(b)
 	conn.Close()
 }
