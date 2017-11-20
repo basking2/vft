@@ -2,13 +2,13 @@ package Server
 
 import (
 	"fmt"
-	"net"
 	"github.com/sirupsen/logrus"
+	"net"
 )
 
 type Server struct {
 	listener net.Listener
-	log         *logrus.Entry
+	log      *logrus.Entry
 }
 
 func New(bindAddress string) (*Server, error) {
@@ -17,18 +17,17 @@ func New(bindAddress string) (*Server, error) {
 		return nil, err
 	}
 
-	var s = &Server {
+	var s = &Server{
 		listener: l,
-		log: logrus.WithField("context", "server"),
+		log:      logrus.WithField("context", "server"),
 	}
 
-	
 	return s, nil
 }
 
 func Serve(s *Server) {
 	defer s.log.Info("VFT server stopped")
-	s.log.Info(fmt.Sprintf("Starting VFT server on port %s",  s.listener.Addr()))
+	s.log.Info(fmt.Sprintf("Starting VFT server on port %s", s.listener.Addr()))
 
 	for {
 		conn, err := s.listener.Accept()
@@ -40,7 +39,7 @@ func Serve(s *Server) {
 	}
 }
 
-func handleInput(conn net.Conn, log *logrus.Entry) () {
+func handleInput(conn net.Conn, log *logrus.Entry) {
 	buf := make([]byte, 1024)
 	_, err := conn.Read(buf)
 	if err != nil {
