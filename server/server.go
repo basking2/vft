@@ -1,7 +1,9 @@
 package Server
 
 import (
+	"database/sql"
 	"fmt"
+	"github.com/bbriggs/vft/db"
 	"github.com/sirupsen/logrus"
 	"net"
 )
@@ -9,6 +11,7 @@ import (
 type Server struct {
 	listener net.Listener
 	log      *logrus.Entry
+	db       *sql.DB
 }
 
 func New(bindAddress string) (*Server, error) {
@@ -17,9 +20,15 @@ func New(bindAddress string) (*Server, error) {
 		return nil, err
 	}
 
+	d, err := DB.CreateFromScratch()
+	if err != nil {
+		return nil, err
+	}
+
 	var s = &Server{
 		listener: l,
 		log:      logrus.WithField("context", "server"),
+		db:       d,
 	}
 
 	return s, nil
