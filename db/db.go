@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -105,3 +106,14 @@ func createReportTable(db *sql.DB) (error) {
 	_, err := db.Exec(stmt)
 	return err
 }
+
+func rowExists(query string, db *sql.DB, log *logrus.Entry) (bool) {
+    var exists bool
+    query = fmt.Sprintf("SELECT exists (%s)", query)
+    err := db.QueryRow(query).Scan(&exists)
+    if err != nil {
+            log.Error(err)
+    }
+    return exists
+}
+
