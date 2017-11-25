@@ -80,9 +80,9 @@ func createHeartbeatTable(db *sql.DB) (error) {
 	stmt := `
 	CREATE TABLE heartbeats (
 		id integer PRIMARY KEY AUTOINCREMENT,
-		client_id text UNIQUE,
+		uuid text UNIQUE,
 		isAlive integer,
-		lastHeartbeat text
+		lastHeartbeat timestamp
 	);
 	`
 	_, err := db.Exec(stmt)

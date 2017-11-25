@@ -2,15 +2,9 @@ package Client
 
 import (
 	"encoding/json"
-	"github.com/satori/go.uuid"
 	"net"
 	"time"
 )
-
-type Heartbeat struct {
-	ClientId    uuid.UUID
-	MessageType string
-}
 
 func runHeartbeat(s string, c *Client) {
 	for {
@@ -19,9 +13,10 @@ func runHeartbeat(s string, c *Client) {
 			c.Log.Error("Unable to send heartbeat to server: " + err.Error())
 			return
 		}
-		h := Heartbeat{
+		h := Message{
 			ClientId:    c.Id,
 			MessageType: "heartbeat",
+			Timestamp:   time.Now(),
 		}
 		b, err := json.Marshal(&h)
 		if err != nil {
