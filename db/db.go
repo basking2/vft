@@ -95,12 +95,12 @@ func createReportTable(db *sql.DB) error {
 	stmt := `
 	CREATE TABLE reports (
 		id integer PRIMARY KEY AUTOINCREMENT,
-		client_id text,
-		datetime text,
+		uuid text,
+		timestamp timestamp,
 		source_ip text,
-		source_port text,
+		source_port integer,
 		dest_ip text,
-		dest_port text
+		dest_port integer
 	);
 	`
 	_, err := db.Exec(stmt)
