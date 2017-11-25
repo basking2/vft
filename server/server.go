@@ -3,7 +3,9 @@ package Server
 import (
 	"database/sql"
 	"fmt"
+	"encoding/json"
 	"github.com/bbriggs/vft/db"
+	"github.com/bbriggs/vft/client"
 	"github.com/sirupsen/logrus"
 	"net"
 )
@@ -43,17 +45,30 @@ func Serve(s *Server) {
 		if err != nil {
 			go s.log.Error(err.Error())
 		} else {
-			go handleInput(conn, s.log)
+			go handleInput(conn, s)
 		}
 	}
 }
 
-func handleInput(conn net.Conn, log *logrus.Entry) {
-	buf := make([]byte, 1024)
-	_, err := conn.Read(buf)
+func handleInput(conn net.Conn, s *Server) {
+	var err error
+	var m Client.Message
+	d := json.NewDecoder(conn)
+	err = d.Decode(&m)
+	conn.Close()
+
 	if err != nil {
-		log.Error(err.Error())
+		s.log.Error("Unable to unmarshal data!")
+		s.log.Error(err.Error())
+		return
+	}
+
+	if m.MessageType == "report" {
+		s.log.Info("Received report on server. Dispatching to DB...")
+		//err = DB.HandleEvent(s.db, s.log, m)
+	} else if m.MessageType == "heartbeat" {
+		s.log.Info("Received heartbeat on server. Dispatching to DB...")
 	} else {
-		log.Info(fmt.Sprintf(string(buf)))
+		s.log.Error("Uknown message type")
 	}
 }

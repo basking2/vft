@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type Report struct {
+type Message struct {
 	Source      net.Addr
 	Dest        net.Addr
 	Timestamp   time.Time
@@ -17,14 +17,14 @@ type Report struct {
 
 func handleConnection(conn net.Conn, s string, c *Client) {
 	// Generate report
-	r := Report{
+	m := Message{
 		Dest:        conn.LocalAddr(),
 		Source:      conn.RemoteAddr(),
 		Timestamp:   time.Now().UTC(),
 		ClientId:    c.Id,
 		MessageType: "report",
 	}
-	go reportConnection(s, c, &r)
+	go reportConnection(s, c, &m)
 
 	// Respond and close
 	buf := make([]byte, 1024)
@@ -37,13 +37,13 @@ func handleConnection(conn net.Conn, s string, c *Client) {
 	conn.Close()
 }
 
-func reportConnection(s string, c *Client, r *Report) {
+func reportConnection(s string, c *Client, m *Message) {
 	conn, err := net.Dial("tcp", s)
 	if err != nil {
 		c.Log.Error("Error connecting to server: " + err.Error())
 		return
 	}
-	b, err := json.Marshal(r)
+	b, err := json.Marshal(m)
 	if err != nil {
 		c.Log.Error("Unable to marshal report!")
 		return
