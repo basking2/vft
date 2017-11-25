@@ -75,7 +75,7 @@ func handleInput(conn net.Conn, s *Server) {
 	if m.MessageType == "report" {
 		err = DB.HandleEvent(s.db, s.log, &m)
 	} else if m.MessageType == "heartbeat" {
-		err = DB.Heartbeat(s.db, s.log, &m)
+		err = DB.HandleHeartbeat(s.db, s.log, &m)
 	} else {
 		s.log.Error("Uknown message type")
 	}
