@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"encoding/json"
 	"github.com/bbriggs/vft/db"
-	"github.com/bbriggs/vft/client"
 	"github.com/sirupsen/logrus"
 	"net"
 )
@@ -14,6 +13,16 @@ type Server struct {
 	listener net.Listener
 	log      *logrus.Entry
 	db       *sql.DB
+}
+
+// We unmarshal json into this. Reflects Client.Message, but stringified.
+// I regret everything about this struct.
+type Message struct {
+	Source string
+	Dest string
+	Timestamp string
+	ClientId string
+	MessageType string
 }
 
 func New(bindAddress string) (*Server, error) {
@@ -52,7 +61,7 @@ func Serve(s *Server) {
 
 func handleInput(conn net.Conn, s *Server) {
 	var err error
-	var m Client.Message
+	var m DB.Message
 	d := json.NewDecoder(conn)
 	err = d.Decode(&m)
 	conn.Close()
@@ -64,11 +73,15 @@ func handleInput(conn net.Conn, s *Server) {
 	}
 
 	if m.MessageType == "report" {
-		s.log.Info("Received report on server. Dispatching to DB...")
-		//err = DB.HandleEvent(s.db, s.log, m)
+		err = DB.HandleEvent(s.db, s.log, &m)
 	} else if m.MessageType == "heartbeat" {
-		s.log.Info("Received heartbeat on server. Dispatching to DB...")
+		err = DB.Heartbeat(s.db, s.log, &m)
 	} else {
 		s.log.Error("Uknown message type")
+	}
+
+	if err != nil {
+		s.log.Error("Received error from database!")
+		s.log.Error(err.Error())
 	}
 }

@@ -4,11 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/bbriggs/vft/client"
 	"github.com/sirupsen/logrus"
 )
 
-func Heartbeat(db *sql.DB, log *logrus.Entry, m *Client.Message) (error){
+func Heartbeat(db *sql.DB, log *logrus.Entry, m *Message) (error){
 	var err error
 	if m.MessageType == "heartbeat" {
 		err = nil
@@ -20,10 +19,10 @@ func Heartbeat(db *sql.DB, log *logrus.Entry, m *Client.Message) (error){
 	return err
 }
 
-func HandleEvent(db *sql.DB, log *logrus.Entry, m *Client.Message) (error){
+func HandleEvent(db *sql.DB, log *logrus.Entry, m *Message) (error){
 	var err error
-	if m.MessageType != "event" {
-		err = fmt.Errorf("Received message type %s when expecting 'event'", m.MessageType)
+	if m.MessageType != "report" {
+		err = fmt.Errorf("Received message type %s when expecting 'report'", m.MessageType)
 		return err
 	}
 
