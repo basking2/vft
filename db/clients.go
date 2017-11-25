@@ -12,7 +12,7 @@ func HandleHeartbeat(db *sql.DB, log *logrus.Entry, m *Message) (error){
 	if m.MessageType == "heartbeat" {
 		err = nil
 		log.Info(fmt.Sprintf("Heartbeat received from %s", m.ClientId))
-		go registerHeartbeat(db, log, m)
+		registerHeartbeat(db, log, m)
 	} else {
 		err = fmt.Errorf("Message type not heartbeat!")
 	}
@@ -37,9 +37,18 @@ func registerHeartbeat(db *sql.DB, log *logrus.Entry, m *Message) (error){
 	if rowExists(stmt, db, log) {
 		log.Info("Client exists")
 	} else {
-		log.Info("Client does not exist")
+		log.Info("Registering new client")
+		go registerClient(db, log, m)
 	}
 	return nil
+}
+
+func registerClient(db *sql.DB, log *logrus.Entry, m *Message) {
+	stmt := fmt.Sprintf("insert into userids(uuid) values('%s')", m.ClientId)
+	_, err := db.Exec(stmt)
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func rowExists(query string, db *sql.DB, log *logrus.Entry) (bool) {
