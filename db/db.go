@@ -38,7 +38,7 @@ func newDB() (*sql.DB, error) {
 	return db, err
 }
 
-func prepareDB(db *sql.DB) (error) {
+func prepareDB(db *sql.DB) error {
 	var err error
 	fmt.Println("Preparing database...")
 	err = createUserTable(db)
@@ -64,7 +64,7 @@ func prepareDB(db *sql.DB) (error) {
 	return nil
 }
 
-func createUserTable(db *sql.DB) (error) {
+func createUserTable(db *sql.DB) error {
 	fmt.Println("Creating user table...")
 	stmt := `
 	CREATE TABLE userids (
@@ -76,7 +76,7 @@ func createUserTable(db *sql.DB) (error) {
 	return err
 }
 
-func createHeartbeatTable(db *sql.DB) (error) {
+func createHeartbeatTable(db *sql.DB) error {
 	fmt.Println("Creating heartbeat table...")
 	stmt := `
 	CREATE TABLE heartbeats (
@@ -90,7 +90,7 @@ func createHeartbeatTable(db *sql.DB) (error) {
 	return err
 }
 
-func createReportTable(db *sql.DB) (error) {
+func createReportTable(db *sql.DB) error {
 	fmt.Println("Creating reports table...")
 	stmt := `
 	CREATE TABLE reports (
@@ -107,13 +107,12 @@ func createReportTable(db *sql.DB) (error) {
 	return err
 }
 
-func rowExists(query string, db *sql.DB, log *logrus.Entry) (bool) {
-    var exists bool
-    query = fmt.Sprintf("SELECT exists (%s)", query)
-    err := db.QueryRow(query).Scan(&exists)
-    if err != nil {
-            log.Error(err)
-    }
-    return exists
+func rowExists(query string, db *sql.DB, log *logrus.Entry) bool {
+	var exists bool
+	query = fmt.Sprintf("SELECT exists (%s)", query)
+	err := db.QueryRow(query).Scan(&exists)
+	if err != nil {
+		log.Error(err)
+	}
+	return exists
 }
-

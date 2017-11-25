@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func HandleEvent(db *sql.DB, log *logrus.Entry, m *Message) (error){
+func HandleEvent(db *sql.DB, log *logrus.Entry, m *Message) error {
 	var err error
 	if m.MessageType != "report" {
 		err = fmt.Errorf("Received message type %s when expecting 'report'", m.MessageType)
