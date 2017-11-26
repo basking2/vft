@@ -16,7 +16,7 @@ func runHeartbeat(s string, c *Client) {
 		h := Message{
 			ClientId:    c.Id,
 			MessageType: "heartbeat",
-			Timestamp:   time.Now(),
+			Timestamp:   time.Now().Unix(),
 		}
 		b, err := json.Marshal(&h)
 		if err != nil {

@@ -14,18 +14,24 @@ func HandleEvent(db *sql.DB, log *logrus.Entry, m *Message) error {
 		return err
 	}
 
-	go insertEvent(db, log, m)
+	insertEvent(db, log, m)
+	go runEventCheck(db, log, m)
 	return err
 }
 
 func insertEvent(db *sql.DB, log *logrus.Entry, m *Message) {
-	log.Info("Logging event from %s", m.ClientId)
 	stmt := fmt.Sprintf(
-		"insert into reports(uuid, timestamp, source_ip, source_port, dest_ip, dest_port) values('%s', '%s', '%s', '%d', '%s', '%d')",
+		"insert into reports(uuid, timestamp, source_ip, source_port, dest_ip, dest_port) values('%s', '%d', '%s', '%d', '%s', '%d')",
 		m.ClientId, m.Timestamp, m.Source.IP, m.Source.Port, m.Dest.IP, m.Dest.Port)
 	_, err := db.Exec(stmt)
 	if err != nil {
 		log.Error(err)
 		return
 	}
+}
+
+func runEventCheck(db *sql.DB, log *logrus.Entry, m *Message) {
+	go samePortCheck(db, log, m)
+	go sameDestCheck(db, log, m)
+	go sameSourceCheck(db, log, m)
 }

@@ -5,7 +5,7 @@ package DB
 type Message struct {
 	Source      Address
 	Dest        Address
-	Timestamp   string
+	Timestamp   int64
 	ClientId    string
 	MessageType string
 }

@@ -10,7 +10,7 @@ import (
 type Message struct {
 	Source      net.Addr
 	Dest        net.Addr
-	Timestamp   time.Time
+	Timestamp   int64
 	ClientId    uuid.UUID
 	MessageType string
 }
@@ -20,7 +20,7 @@ func handleConnection(conn net.Conn, s string, c *Client) {
 	m := Message{
 		Dest:        conn.LocalAddr(),
 		Source:      conn.RemoteAddr(),
-		Timestamp:   time.Now().UTC(),
+		Timestamp:   time.Now().Unix(),
 		ClientId:    c.Id,
 		MessageType: "report",
 	}

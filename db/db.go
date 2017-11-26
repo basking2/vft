@@ -83,7 +83,7 @@ func createHeartbeatTable(db *sql.DB) error {
 		id integer PRIMARY KEY AUTOINCREMENT,
 		uuid text UNIQUE,
 		isAlive integer,
-		lastHeartbeat timestamp
+		lastHeartbeat integer
 	);
 	`
 	_, err := db.Exec(stmt)
@@ -96,7 +96,7 @@ func createReportTable(db *sql.DB) error {
 	CREATE TABLE reports (
 		id integer PRIMARY KEY AUTOINCREMENT,
 		uuid text,
-		timestamp timestamp,
+		timestamp integer,
 		source_ip text,
 		source_port integer,
 		dest_ip text,
