@@ -23,8 +23,8 @@ func main() {
 	app.Compiled = time.Now()
 	app.Authors = []cli.Author{
 		cli.Author{
-			Name:  "Bren Briggs",
-			Email: "bren@quiteuncommon.com",
+			Name:  "Bren \"fraq\" Briggs",
+			Email: "fraq@fraq.io",
 		},
 	}
 	app.Flags = []cli.Flag{
