@@ -3,8 +3,12 @@ package Client
 import (
 	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/mitchellh/go-homedir"
 	"math/rand"
 	"net"
+	"os"
+	"io/ioutil"
+	"fmt"
 	"time"
 )
 
@@ -23,6 +27,7 @@ func New() (*Client, error) {
 	var l net.Listener
 	var listeners []net.Listener
 	var err error
+	log := logrus.WithField("context", "client")
 
 	// Ports we will randomly sample for starting traps
 	ports := []string{"8080", "8081", "9000", "6969", "8443", "2222", "6667", "6668", "6669", "6697", "80", "53", "22", "21", "69", "443", "110", "5432"}
@@ -33,9 +38,12 @@ func New() (*Client, error) {
 
 	var c = &Client{
 		Listeners: listeners,
-		Log:       logrus.WithField("context", "client"),
-		Id:        uuid.NewV4(),
+		Log:       log,
+		Id:        getUUID(log),
 	}
+
+	err = saveUUID(c.Id)
+	checkErr(err)
 
 	count := 0
 	for count < 5 {
@@ -62,4 +70,42 @@ func Run(c *Client, server string) {
 		go startTrap(listener, server, c)
 	}
 	go runHeartbeat(server, c)
+}
+
+func getUUID(log *logrus.Entry) uuid.UUID {
+	f := getUUIDFile() 
+	if _, err := os.Stat(f); !os.IsNotExist(err) {
+		// ~/.vft exists
+		log.Info("Found existing UUID file.")
+		dat, err := ioutil.ReadFile(f)
+		checkErr(err)
+		u, err := uuid.FromString(string(dat))
+		if err != nil {
+			log.Error(fmt.Sprintf("Invalid UUID in %s. Replacing with a new one...", f))
+			return uuid.NewV4()
+		} else {
+			return u
+		}
+	}
+	return uuid.NewV4()
+}
+
+func getUUIDFile() string {
+	f, err := homedir.Expand("~/.vft")
+	checkErr(err)
+	return f
+}
+
+func saveUUID(id uuid.UUID) error {
+	f := getUUIDFile()
+	// UUID -> string -> bytes (it's stupid)
+	b := []byte(fmt.Sprintf("%s", id))
+	err := ioutil.WriteFile(f, b, 0644)
+	return err
+}
+
+func checkErr(e error) {
+    if e != nil {
+        panic(e)
+    }
 }
