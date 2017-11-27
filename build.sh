@@ -2,6 +2,7 @@
 ## VFT Build script v1, written by pry0cc 27/11/2017
 
 startdir=$PWD
+giturl="git@gitlab.com:bbriggs1/vft.git"
 
 mkdir -p ./bin/
 
@@ -17,7 +18,7 @@ fi
 cd $GOPATH
 mkdir -p ./src/github.com/bbriggs
 echo "Cloning vft"
-git clone git@gitlab.s-3.tech:fraq/vft.git ./src/github.com/bbriggs/vft
+git clone $giturl ./src/github.com/bbriggs/vft
 cd $GOPATH/src/github.com/bbriggs/vft/cmd/vft
 echo "Installing dependencies"
 go get ./...
