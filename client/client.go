@@ -1,14 +1,14 @@
 package Client
 
 import (
+	"fmt"
+	"github.com/mitchellh/go-homedir"
 	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
-	"github.com/mitchellh/go-homedir"
+	"io/ioutil"
 	"math/rand"
 	"net"
 	"os"
-	"io/ioutil"
-	"fmt"
 	"time"
 )
 
@@ -73,7 +73,7 @@ func Run(c *Client, server string) {
 }
 
 func getUUID(log *logrus.Entry) uuid.UUID {
-	f := getUUIDFile() 
+	f := getUUIDFile()
 	if _, err := os.Stat(f); !os.IsNotExist(err) {
 		// ~/.vft exists
 		log.Info("Found existing UUID file.")
@@ -105,7 +105,7 @@ func saveUUID(id uuid.UUID) error {
 }
 
 func checkErr(e error) {
-    if e != nil {
-        panic(e)
-    }
+	if e != nil {
+		panic(e)
+	}
 }
