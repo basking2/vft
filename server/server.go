@@ -2,8 +2,8 @@ package Server
 
 import (
 	"database/sql"
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"github.com/bbriggs/vft/db"
 	"github.com/sirupsen/logrus"
 	"net"
@@ -18,10 +18,10 @@ type Server struct {
 // We unmarshal json into this. Reflects Client.Message, but stringified.
 // I regret everything about this struct.
 type Message struct {
-	Source string
-	Dest string
-	Timestamp string
-	ClientId string
+	Source      string
+	Dest        string
+	Timestamp   string
+	ClientId    string
 	MessageType string
 }
 

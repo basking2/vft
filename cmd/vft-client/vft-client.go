@@ -19,15 +19,15 @@ func main() {
 	app.Compiled = time.Now()
 	app.Authors = []cli.Author{
 		cli.Author{
-			Name: "Bren \"fraq\" Briggs",
+			Name:  "Bren \"fraq\" Briggs",
 			Email: "fraq@fraq.io",
 		},
 	}
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "server",
-			Value: "127.0.0.1:9999",
-			Usage: "Address of destination VFT server",
+			Name:        "server",
+			Value:       "127.0.0.1:9999",
+			Usage:       "Address of destination VFT server",
 			Destination: &serverAddress,
 		},
 	}
@@ -47,15 +47,14 @@ func main() {
 }
 
 func waitForCtrlC() {
-        var end_waiter sync.WaitGroup
-        end_waiter.Add(1)
-        var signal_channel chan os.Signal
-        signal_channel = make(chan os.Signal, 1)
-        signal.Notify(signal_channel, os.Interrupt)
-        go func() {
-                <-signal_channel
-                end_waiter.Done()
-        }()
-        end_waiter.Wait()
+	var end_waiter sync.WaitGroup
+	end_waiter.Add(1)
+	var signal_channel chan os.Signal
+	signal_channel = make(chan os.Signal, 1)
+	signal.Notify(signal_channel, os.Interrupt)
+	go func() {
+		<-signal_channel
+		end_waiter.Done()
+	}()
+	end_waiter.Wait()
 }
-

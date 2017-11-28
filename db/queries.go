@@ -1,17 +1,17 @@
 package DB
 
 import (
-        "database/sql"
-        "fmt"
-        _ "github.com/mattn/go-sqlite3"
-        "github.com/sirupsen/logrus"
-        "time"
+	"database/sql"
+	"fmt"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/sirupsen/logrus"
+	"time"
 )
 
 func samePortCheck(db *sql.DB, log *logrus.Entry, m *Message) {
 	var count int
-        stmt := fmt.Sprintf("select count(*) from reports where dest_port = %d and timestamp >= %d", m.Dest.Port, time.Now().Unix() - 300)
-        err := db.QueryRow(stmt).Scan(&count)
+	stmt := fmt.Sprintf("select count(*) from reports where dest_port = %d and timestamp >= %d", m.Dest.Port, time.Now().Unix()-300)
+	err := db.QueryRow(stmt).Scan(&count)
 	if err != nil {
 		log.Error(err)
 	}
@@ -22,7 +22,7 @@ func samePortCheck(db *sql.DB, log *logrus.Entry, m *Message) {
 
 func sameDestCheck(db *sql.DB, log *logrus.Entry, m *Message) {
 	var count int
-        stmt := fmt.Sprintf("select count(*) from reports where dest_ip = '%s'", m.Dest.IP)
+	stmt := fmt.Sprintf("select count(*) from reports where dest_ip = '%s'", m.Dest.IP)
 	err := db.QueryRow(stmt).Scan(&count)
 	if err != nil {
 		log.Error(err)
