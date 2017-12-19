@@ -2,33 +2,39 @@ package Client
 
 import (
 	"encoding/json"
-	"github.com/satori/go.uuid"
+	"github.com/bbriggs/vft"
 	"net"
 	"time"
 )
 
-type Message struct {
-	Source      net.Addr
-	Dest        net.Addr
-	Timestamp   int64
-	ClientId    uuid.UUID
-	MessageType string
-}
-
 func handleConnection(conn net.Conn, s string, c *Client) {
 	// Generate report
-	m := Message{
-		Dest:        conn.LocalAddr(),
-		Source:      conn.RemoteAddr(),
+
+	lhost, lport, err := net.SplitHostPort(conn.LocalAddr().String())
+	if err != nil {
+		c.Log.Fatal("Unable to parse IP address")
+	}
+
+	rhost, rport, err := net.SplitHostPort(conn.RemoteAddr().String())
+	if err != nil {
+		c.Log.Fatal("Unable to parse IP address")
+	}
+	m := vft.Message{
+		Lhost:       lhost,
+		Lport:       lport,
+		Rhost:       rhost,
+		Rport:       rport,
 		Timestamp:   time.Now().Unix(),
 		ClientId:    c.Id,
+		JWT:         c.JWT,
 		MessageType: "report",
 	}
+
 	go reportConnection(s, c, &m)
 
 	// Respond and close
 	buf := make([]byte, 1024)
-	_, err := conn.Read(buf)
+	_, err = conn.Read(buf)
 	if err != nil {
 		c.Log.Error("Error reading: " + err.Error())
 		return
@@ -37,7 +43,7 @@ func handleConnection(conn net.Conn, s string, c *Client) {
 	conn.Close()
 }
 
-func reportConnection(s string, c *Client, m *Message) {
+func reportConnection(s string, c *Client, m *vft.Message) {
 	conn, err := net.Dial("tcp", s)
 	if err != nil {
 		c.Log.Error("Error connecting to server: " + err.Error())

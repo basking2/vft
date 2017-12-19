@@ -1,8 +1,6 @@
 package Server
 
 import (
-	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/bbriggs/vft/db"
 	"github.com/sirupsen/logrus"
@@ -12,17 +10,7 @@ import (
 type Server struct {
 	listener net.Listener
 	log      *logrus.Entry
-	db       *sql.DB
-}
-
-// We unmarshal json into this. Reflects Client.Message, but stringified.
-// I regret everything about this struct.
-type Message struct {
-	Source      string
-	Dest        string
-	Timestamp   string
-	ClientId    string
-	MessageType string
+	db       *db.Database
 }
 
 func New(bindAddress string) (*Server, error) {
@@ -31,7 +19,7 @@ func New(bindAddress string) (*Server, error) {
 		return nil, err
 	}
 
-	d, err := DB.CreateFromScratch()
+	d, err := db.CreateFromScratch()
 	if err != nil {
 		return nil, err
 	}
@@ -54,34 +42,7 @@ func Serve(s *Server) {
 		if err != nil {
 			go s.log.Error(err.Error())
 		} else {
-			go handleInput(conn, s)
+			go s.handleInput(conn)
 		}
-	}
-}
-
-func handleInput(conn net.Conn, s *Server) {
-	var err error
-	var m DB.Message
-	d := json.NewDecoder(conn)
-	err = d.Decode(&m)
-	conn.Close()
-
-	if err != nil {
-		s.log.Error("Unable to unmarshal data!")
-		s.log.Error(err.Error())
-		return
-	}
-
-	if m.MessageType == "report" {
-		err = DB.HandleEvent(s.db, s.log, &m)
-	} else if m.MessageType == "heartbeat" {
-		err = DB.HandleHeartbeat(s.db, s.log, &m)
-	} else {
-		s.log.Error("Uknown message type")
-	}
-
-	if err != nil {
-		s.log.Error("Received error from database!")
-		s.log.Error(err.Error())
 	}
 }

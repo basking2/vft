@@ -1,45 +1,43 @@
-package DB
+package db
 
 import (
-	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/sirupsen/logrus"
+	"github.com/bbriggs/vft"
 	"time"
 )
 
-func samePortCheck(db *sql.DB, log *logrus.Entry, m *Message) {
+func (d *Database) samePortCheck(m *vft.Message) {
 	var count int
-	stmt := fmt.Sprintf("select count(*) from reports where dest_port = %d and timestamp >= %d", m.Dest.Port, time.Now().Unix()-300)
-	err := db.QueryRow(stmt).Scan(&count)
+	stmt := fmt.Sprintf("select count(*) from reports where dest_port = %s and timestamp >= %d", m.Lport, time.Now().Unix()-300)
+	err := d.DB.QueryRow(stmt).Scan(&count)
 	if err != nil {
-		log.Error(err)
+		d.Log.Error(err)
 	}
 	if count >= 3 {
-		log.Warn(fmt.Sprintf("Detected 3 or more attempts on port %d in the last 300 seconds!", m.Dest.Port))
+		d.Log.Warn(fmt.Sprintf("Detected 3 or more attempts on port %s in the last 300 seconds!", m.Lport))
 	}
 }
 
-func sameDestCheck(db *sql.DB, log *logrus.Entry, m *Message) {
+func (d *Database) sameDestCheck(m *vft.Message) {
 	var count int
-	stmt := fmt.Sprintf("select count(*) from reports where dest_ip = '%s'", m.Dest.IP)
-	err := db.QueryRow(stmt).Scan(&count)
+	stmt := fmt.Sprintf("select count(*) from reports where dest_ip = '%s'", m.Lhost)
+	err := d.DB.QueryRow(stmt).Scan(&count)
 	if err != nil {
-		log.Error(err)
+		d.Log.Error(err)
 	}
 	if count >= 3 {
-		log.Warn(fmt.Sprintf("Detected 3 or more attempts against IP %s in the last 300 seconds!", m.Dest.IP))
+		d.Log.Warn(fmt.Sprintf("Detected 3 or more attempts against IP %s in the last 300 seconds!", m.Lhost))
 	}
 }
 
-func sameSourceCheck(db *sql.DB, log *logrus.Entry, m *Message) {
+func (d *Database) sameSourceCheck(m *vft.Message) {
 	var count int
-	stmt := fmt.Sprintf("select count(*) from reports where source_ip = '%s'", m.Source.IP)
-	err := db.QueryRow(stmt).Scan(&count)
+	stmt := fmt.Sprintf("select count(*) from reports where source_ip = '%s'", m.Rhost)
+	err := d.DB.QueryRow(stmt).Scan(&count)
 	if err != nil {
-		log.Error(err)
+		d.Log.Error(err)
 	}
 	if count >= 3 {
-		log.Warn(fmt.Sprintf("Detected 3 or more attempts from source address %s in the last 300 seconds!", m.Source.IP))
+		d.Log.Warn(fmt.Sprintf("Detected 3 or more attempts from source address %s in the last 300 seconds!", m.Rhost))
 	}
 }
