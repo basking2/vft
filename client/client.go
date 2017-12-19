@@ -15,7 +15,8 @@ import (
 type Client struct {
 	Listeners []net.Listener
 	Log       *logrus.Entry
-	Id        uuid.UUID
+	Id        string
+	JWT       string
 }
 
 func removeIndex(s []string, index int) []string {
@@ -42,8 +43,8 @@ func New() (*Client, error) {
 		Id:        getUUID(log),
 	}
 
-	err = saveUUID(c.Id)
-	checkErr(err)
+	//err = saveUUID(c.Id)
+	//checkErr(err)
 
 	count := 0
 	for count < 5 {
@@ -60,19 +61,21 @@ func New() (*Client, error) {
 		}
 		ports = removeIndex(ports, index)
 	}
-
 	return c, nil
 }
 
 func Run(c *Client, server string) {
 	c.Log.Info("Starting VFT client...")
+	c.JWT = c.authenticate(server, "SharedSecret")
+
+	go runHeartbeat(server, c)
+
 	for _, listener := range c.Listeners {
 		go startTrap(listener, server, c)
 	}
-	go runHeartbeat(server, c)
 }
 
-func getUUID(log *logrus.Entry) uuid.UUID {
+func getUUID(log *logrus.Entry) string {
 	f := getUUIDFile()
 	if _, err := os.Stat(f); !os.IsNotExist(err) {
 		// ~/.vft exists
@@ -82,12 +85,12 @@ func getUUID(log *logrus.Entry) uuid.UUID {
 		u, err := uuid.FromString(string(dat))
 		if err != nil {
 			log.Error(fmt.Sprintf("Invalid UUID in %s. Replacing with a new one...", f))
-			return uuid.NewV4()
+			return fmt.Sprintf("%s", uuid.NewV4())
 		} else {
-			return u
+			return fmt.Sprintf("%s", u)
 		}
 	}
-	return uuid.NewV4()
+	return fmt.Sprintf("%s", uuid.NewV4())
 }
 
 func getUUIDFile() string {

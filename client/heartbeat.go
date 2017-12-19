@@ -2,6 +2,8 @@ package Client
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/bbriggs/vft"
 	"net"
 	"time"
 )
@@ -13,10 +15,11 @@ func runHeartbeat(s string, c *Client) {
 			c.Log.Error("Unable to send heartbeat to server: " + err.Error())
 			return
 		}
-		h := Message{
-			ClientId:    c.Id,
+		h := vft.Message{
+			ClientId:    fmt.Sprintf("%s", c.Id),
 			MessageType: "heartbeat",
 			Timestamp:   time.Now().Unix(),
+			JWT:         c.JWT,
 		}
 		b, err := json.Marshal(&h)
 		if err != nil {

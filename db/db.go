@@ -1,4 +1,4 @@
-package DB
+package db
 
 import (
 	"database/sql"
@@ -8,18 +8,23 @@ import (
 	"os"
 )
 
-func CreateFromScratch() (*sql.DB, error) {
+type Database struct {
+	DB  *sql.DB
+	Log *logrus.Entry
+}
+
+func CreateFromScratch() (*Database, error) {
 	fmt.Println("Creating new database from scratch...")
 	dbCleanup()
 	fmt.Println("Database removed.")
-	db, err := newDB()
+	db, err := New()
 	if err != nil {
 		fmt.Println("FATAL: Unable to create SQLite DB")
 		return nil, err
 	}
-
-	err = prepareDB(db)
-
+	err = db.Prepare()
+	stmt := fmt.Sprintf("insert into auth(signing_key) values('%s')", randSeq(25))
+	_, err = db.DB.Exec(stmt)
 	if err != nil {
 		fmt.Println("Unable to prepare DB!")
 		return nil, err
@@ -32,52 +37,61 @@ func dbCleanup() {
 	os.Remove("./vft.db")
 }
 
-func newDB() (*sql.DB, error) {
+func New() (*Database, error) {
 	fmt.Println("Initializing new database...")
-	db, err := sql.Open("sqlite3", "./vft.db")
+	var db = &Database{
+		Log: logrus.WithField("context", "database"),
+	}
+	sqldb, err := sql.Open("sqlite3", "./vft.db")
+	if err != nil {
+		return nil, err
+	}
+	db.DB = sqldb
 	return db, err
 }
 
-func prepareDB(db *sql.DB) error {
+func (d *Database) Prepare() error {
 	var err error
-	fmt.Println("Preparing database...")
-	err = createUserTable(db)
+	d.Log.Info("Preparing database...")
+	err = d.createUserTable()
 	if err != nil {
-		fmt.Println("FATAL: unable to create user table!")
-		fmt.Println(err.Error())
+		d.Log.Fatal("FATAL: unable to create user table! " + err.Error())
 		return err
 	}
-	err = createHeartbeatTable(db)
+	err = d.createHeartbeatTable()
 	if err != nil {
-		fmt.Println("FATAL: unable to create heartbeat table!")
-		fmt.Println(err.Error())
+		d.Log.Fatal("FATAL: unable to create heartbeat table! " + err.Error())
 		return err
 	}
 
-	err = createReportTable(db)
+	err = d.createReportTable()
 	if err != nil {
-		fmt.Println("FATAL: unable to create report table!")
-		fmt.Println(err.Error())
+		d.Log.Fatal("FATAL: unable to create report table! " + err.Error())
 		return err
 	}
-	fmt.Println("Database prepared!")
+	err = d.createAuthTable()
+	if err != nil {
+		d.Log.Fatal("FATAL: unable to create Auth table! " + err.Error())
+		return err
+	}
+	d.Log.Info("Database prepared!")
 	return nil
 }
 
-func createUserTable(db *sql.DB) error {
-	fmt.Println("Creating user table...")
+func (d *Database) createUserTable() error {
+	d.Log.Info("Creating user table...")
 	stmt := `
 	CREATE TABLE userids (
 		id integer PRIMARY KEY AUTOINCREMENT,
 		uuid text UNIQUE
 	);
 	`
-	_, err := db.Exec(stmt)
+	_, err := d.DB.Exec(stmt)
 	return err
 }
 
-func createHeartbeatTable(db *sql.DB) error {
-	fmt.Println("Creating heartbeat table...")
+func (d *Database) createHeartbeatTable() error {
+	d.Log.Info("Creating heartbeat table...")
 	stmt := `
 	CREATE TABLE heartbeats (
 		id integer PRIMARY KEY AUTOINCREMENT,
@@ -86,12 +100,12 @@ func createHeartbeatTable(db *sql.DB) error {
 		lastHeartbeat integer
 	);
 	`
-	_, err := db.Exec(stmt)
+	_, err := d.DB.Exec(stmt)
 	return err
 }
 
-func createReportTable(db *sql.DB) error {
-	fmt.Println("Creating reports table...")
+func (d *Database) createReportTable() error {
+	d.Log.Info("Creating reports table...")
 	stmt := `
 	CREATE TABLE reports (
 		id integer PRIMARY KEY AUTOINCREMENT,
@@ -103,16 +117,28 @@ func createReportTable(db *sql.DB) error {
 		dest_port integer
 	);
 	`
-	_, err := db.Exec(stmt)
+	_, err := d.DB.Exec(stmt)
 	return err
 }
 
-func rowExists(query string, db *sql.DB, log *logrus.Entry) bool {
+func (d *Database) createAuthTable() error {
+	d.Log.Info("Creating Auth table...")
+	stmt := `
+	CREATE TABLE auth (
+		id integer PRIMARY KEY AUTOINCREMENT,
+		signing_key text
+	);
+	`
+	_, err := d.DB.Exec(stmt)
+	return err
+}
+
+func (d *Database) rowExists(query string) bool {
 	var exists bool
 	query = fmt.Sprintf("SELECT exists (%s)", query)
-	err := db.QueryRow(query).Scan(&exists)
+	err := d.DB.QueryRow(query).Scan(&exists)
 	if err != nil {
-		log.Error(err)
+		d.Log.Error(err)
 	}
 	return exists
 }

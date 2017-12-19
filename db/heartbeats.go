@@ -1,18 +1,20 @@
-package DB
+package db
 
 import (
-	"database/sql"
+	//	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/sirupsen/logrus"
+	"github.com/bbriggs/vft"
+	//	_ "github.com/mattn/go-sqlite3"
+	//	"github.com/sirupsen/logrus"
 )
 
-func HandleHeartbeat(db *sql.DB, log *logrus.Entry, m *Message) error {
+func (d *Database) HandleHeartbeat(m *vft.Message) error {
 	var err error
+	d.Log.Debug("Handling heartbeat")
 	if m.MessageType == "heartbeat" {
 		err = nil
-		log.Debug(fmt.Sprintf("Heartbeat received from %s", m.ClientId))
-		go registerHeartbeat(db, log, m)
+		d.Log.Debug(fmt.Sprintf("Heartbeat received from %s", m.ClientId))
+		go d.registerHeartbeat(m)
 	} else {
 		err = fmt.Errorf("Message type not heartbeat!")
 	}
@@ -20,13 +22,13 @@ func HandleHeartbeat(db *sql.DB, log *logrus.Entry, m *Message) error {
 	return err
 }
 
-func registerHeartbeat(db *sql.DB, log *logrus.Entry, m *Message) error {
+func (d *Database) registerHeartbeat(m *vft.Message) error {
 	stmt := fmt.Sprintf("SELECT 1 FROM userids  WHERE uuid=\"%s\" LIMIT 1", m.ClientId)
-	if rowExists(stmt, db, log) {
-		log.Debug("Client exists")
+	if d.rowExists(stmt) {
+		d.Log.Debug("Client exists")
 	} else {
-		log.Info(fmt.Sprintf("Registering new client: %s", m.ClientId))
-		go registerClient(db, log, m)
+		d.Log.Info(fmt.Sprintf("Registering new client: %s", m.ClientId))
+		go d.registerClient(m)
 	}
 	return nil
 }
