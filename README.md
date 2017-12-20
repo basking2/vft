@@ -42,7 +42,6 @@ vft --dest elk.yourcompany.net:9300 standalone
 ## Installation
 
 ### Linux
-#### Bulding
 Clone the repo + Build the binary
 ```
 git clone git@gitlab.com:bbriggs1/vft.git
