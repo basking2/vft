@@ -41,4 +41,14 @@ vft --dest elk.yourcompany.net:9300 standalone
 
 ## Installation
 
-Oh man this part sucks right now just download the binary, okay?
+### Linux
+#### Bulding
+Clone the repo + Build the binary
+```
+git clone git@gitlab.com:bbriggs1/vft.git
+cd vft
+./build.sh
+```
+
+### Windows
+Check back later.
