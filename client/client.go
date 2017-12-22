@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"time"
+	"crypto/tls"
 )
 
 type Client struct {
@@ -17,6 +18,8 @@ type Client struct {
 	Log       *logrus.Entry
 	Id        string
 	JWT       string
+	TLS       bool
+	TLSConfig *tls.Config
 }
 
 func removeIndex(s []string, index int) []string {
@@ -28,6 +31,7 @@ func New() (*Client, error) {
 	var l net.Listener
 	var listeners []net.Listener
 	var err error
+
 	log := logrus.WithField("context", "client")
 
 	// Ports we will randomly sample for starting traps
@@ -41,10 +45,8 @@ func New() (*Client, error) {
 		Listeners: listeners,
 		Log:       log,
 		Id:        getUUID(log),
+		TLSConfig: nil,
 	}
-
-	//err = saveUUID(c.Id)
-	//checkErr(err)
 
 	count := 0
 	for count < 5 {
@@ -64,10 +66,14 @@ func New() (*Client, error) {
 	return c, nil
 }
 
-func Run(c *Client, server string) {
+func Run(c *Client, server string, certPath string) {
 	c.Log.Info("Starting VFT client...")
-	c.JWT = c.authenticate(server, "SharedSecret")
+	if certPath != "" {
+		c.TLSConfig = c.configureTLS(certPath)
+		c.TLS = true
+	}
 
+	c.JWT = c.authenticate(server, "SharedSecret")
 	go runHeartbeat(server, c)
 
 	for _, listener := range c.Listeners {

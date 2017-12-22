@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/bbriggs/vft/server"
+	"fmt"
 	"github.com/urfave/cli"
 	"os"
 	"os/signal"
@@ -11,7 +12,11 @@ import (
 )
 
 func main() {
-	var bindAddress string
+	var (
+		bindAddress string
+	 	certPath string
+	 	keyPath string
+	)
 
 	app := cli.NewApp()
 	app.Version = "0.1.0"
@@ -20,7 +25,7 @@ func main() {
 	app.Authors = []cli.Author{
 		cli.Author{
 			Name:  "Bren \"fraq\" Briggs",
-			Email: "fraq@fraq.io",
+			Email: "code@fraq.io",
 		},
 	}
 	app.Flags = []cli.Flag{
@@ -30,9 +35,33 @@ func main() {
 			Usage:       "Bind address of VFT server",
 			Destination: &bindAddress,
 		},
+		cli.BoolFlag{
+			Name: "ssl",
+			Usage: "Start VFT with an SSL listener",
+		},
+		cli.StringFlag{
+			Name: "cert",
+			Usage: "SSL certificate",
+			Destination: &certPath,
+		},
+		cli.StringFlag{
+			Name: "key",
+			Usage: "SSL key",
+			Destination: &keyPath,
+		},
 	}
 	app.Action = func(c *cli.Context) error {
-		s, err := Server.New(bindAddress)
+		var (
+			err error
+			s *Server.Server
+		)
+		if c.Bool("ssl") {
+			fmt.Println("Attempting to start VFT server with ssl...")
+			s, err = Server.NewWithTLS(bindAddress, certPath, keyPath)
+		} else {
+			fmt.Println("Attempting to start VFT server without SSL...")
+			s, err = Server.New(bindAddress)
+		}
 		if err != nil {
 			return err
 		}
