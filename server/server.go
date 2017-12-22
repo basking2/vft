@@ -1,6 +1,7 @@
 package Server
 
 import (
+	"crypto/tls"
 	"fmt"
 	"github.com/bbriggs/vft/db"
 	"github.com/sirupsen/logrus"
@@ -29,6 +30,32 @@ func New(bindAddress string) (*Server, error) {
 		log:      logrus.WithField("context", "server"),
 		db:       d,
 	}
+
+	return s, nil
+}
+
+func NewWithTLS(bindAddress string, certPath string, keyPath string) (*Server, error) {
+	var s = &Server {
+		log: logrus.WithField("context", "server"),
+	}
+	cer, err := tls.LoadX509KeyPair(certPath, keyPath)
+	if err != nil {
+		s.log.Fatal(err)
+		return nil, err
+	}
+
+	config := &tls.Config{Certificates: []tls.Certificate{cer}}
+	l, err := tls.Listen("tcp", bindAddress, config) 	
+	if err != nil {
+		return nil, err
+	}
+	s.listener = l
+
+	d, err := db.CreateFromScratch()
+	if err != nil {
+		return nil, err
+	}
+	s.db = d
 
 	return s, nil
 }

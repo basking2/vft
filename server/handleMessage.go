@@ -17,6 +17,7 @@ func (s *Server) handleInput(conn net.Conn) {
 		s.log.Error(err.Error())
 		return
 	}
+
 	switch m.MessageType {
 	case "report":
 		if s.validateJWT(m.JWT) {
@@ -28,14 +29,17 @@ func (s *Server) handleInput(conn net.Conn) {
 		if s.validateJWT(m.JWT) {
 			err = s.db.HandleHeartbeat(m)
 		} else {
-			err = fmt.Errorf("Authentication failed")
+			s.log.Error("Authentication failed!")
+			err = fmt.Errorf("Authentication failed!")
 		}
 	case "handshake":
 		jwt, err = s.authenticate(m)
 		if err != nil {
+			s.log.Error("Authentication failed!")
 			conn.Write([]byte("Authentication failed!"))
+		} else {
+			conn.Write([]byte(jwt))
 		}
-		conn.Write([]byte(jwt))
 	default:
 		s.log.Error("Uknown message type")
 	}

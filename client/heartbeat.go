@@ -6,15 +6,11 @@ import (
 	"github.com/bbriggs/vft"
 	"net"
 	"time"
+	"crypto/tls"
 )
 
 func runHeartbeat(s string, c *Client) {
 	for {
-		conn, err := net.DialTimeout("tcp", s, 30*time.Second)
-		if err != nil {
-			c.Log.Error("Unable to send heartbeat to server: " + err.Error())
-			return
-		}
 		h := vft.Message{
 			ClientId:    fmt.Sprintf("%s", c.Id),
 			MessageType: "heartbeat",
@@ -22,13 +18,27 @@ func runHeartbeat(s string, c *Client) {
 			JWT:         c.JWT,
 		}
 		b, err := json.Marshal(&h)
+
 		if err != nil {
-			c.Log.Error("Unable to marshal heartbeat string!")
-		} else {
-			conn.Write(b)
-			c.Log.Info("Sent 1 heartbeat to server...")
+			c.Log.Fatal("Unable to marshal heartbeat string!")
 		}
-		conn.Close()
+
+		if c.TLS {
+			conn, err := tls.Dial("tcp", s, c.TLSConfig)  // Figure out how to do a timeout here
+			if err != nil {
+				c.Log.Fatal(err)
+			}
+			conn.Write(b)
+			conn.Close()
+		} else {
+			conn, err := net.DialTimeout("tcp", s, 30*time.Second)
+			if err != nil {
+				c.Log.Fatal(err)
+			}
+			conn.Write(b)
+			conn.Close()
+		}
+		c.Log.Info("Sent 1 heartbeat to server...")
 		time.Sleep(60 * time.Second)
 	}
 }

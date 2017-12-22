@@ -4,32 +4,42 @@ import (
 	"encoding/json"
 	"github.com/bbriggs/vft"
 	"net"
+	"io/ioutil"
 	"time"
+	"crypto/tls"
 )
 
 func (c *Client) authenticate(server string, secret string) string {
-	conn, err := net.DialTimeout("tcp", server, 30*time.Second)
-	defer conn.Close()
-	if err != nil {
-		c.Log.Fatal("Unable to establish connection to the server.")
-	}
-
+	var (
+		conn net.Conn
+		err error
+	)
 	h := vft.Message{
 		ClientId:    c.Id,
 		Secret:      secret,
 		MessageType: "handshake",
 	}
 	b, err := json.Marshal(&h)
+	c.Log.Info("Attempting to authenticate with the server...")
 	if err != nil {
 		c.Log.Fatal("Unable to marshal handshake message into JSON")
 	}
-	conn.Write(b)
 
-	buff := make([]byte, 1024)
-	n, err := conn.Read(buff)
+	if c.TLS {
+		conn, err = tls.Dial("tcp", server, c.TLSConfig)
+
+	} else {
+		conn, err = net.DialTimeout("tcp", server, 30*time.Second)
+	}
+	if err != nil {
+		c.Log.Fatal("Error while handshaking with server: " + err.Error())
+	}
+	conn.Write(b)
+	data, err := ioutil.ReadAll(conn)
+
 	if err != nil {
 		c.Log.Fatal("Unable to read server response: " + err.Error())
 	}
-
-	return string(buff[:n])
+	defer conn.Close()
+	return string(data)
 }

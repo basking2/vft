@@ -14,8 +14,10 @@ type customClaims struct {
 
 func (s *Server) authenticate(m *vft.Message) (string, error) {
 	if m.Secret == "SharedSecret" {
+		s.log.Info("Good secret")
 		return s.newJWT(m)
 	} else {
+		s.log.Info("Bad secret")
 		err := fmt.Errorf("Authentication failed!")
 		return "", err
 	}

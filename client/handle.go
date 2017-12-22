@@ -3,6 +3,7 @@ package Client
 import (
 	"encoding/json"
 	"github.com/bbriggs/vft"
+	"crypto/tls"
 	"net"
 	"time"
 )
@@ -44,16 +45,25 @@ func handleConnection(conn net.Conn, s string, c *Client) {
 }
 
 func reportConnection(s string, c *Client, m *vft.Message) {
-	conn, err := net.Dial("tcp", s)
+	var (
+		conn net.Conn
+		err error
+	)
+	if c.TLS {
+		conn, err = tls.Dial("tcp", s, c.TLSConfig)
+	} else {
+		conn, err = net.Dial("tcp", s)
+	}
 	if err != nil {
 		c.Log.Error("Error connecting to server: " + err.Error())
 		return
 	}
+	defer conn.Close()
 	b, err := json.Marshal(m)
 	if err != nil {
 		c.Log.Error("Unable to marshal report!")
 		return
 	}
 	conn.Write(b)
-	conn.Close()
+	return
 }
