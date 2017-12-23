@@ -7,8 +7,11 @@ import (
 )
 
 func (s *Server) handleInput(conn net.Conn) {
-	var err error
-	var jwt string
+	var (
+		err   error
+		jwt   string
+	)
+
 	defer conn.Close()
 	m, err := vft.DecodeMessage(conn)
 
@@ -20,15 +23,15 @@ func (s *Server) handleInput(conn net.Conn) {
 
 	switch m.MessageType {
 	case "report":
-		if s.validateJWT(m.JWT) {
-			err = s.db.HandleEvent(m)
-		} else {
-			err = fmt.Errorf("Authentication failed")
-		}
+		err = s.db.HandleEvent(m)
 	case "heartbeat":
-		if s.validateJWT(m.JWT) {
-			err = s.db.HandleHeartbeat(m)
+		if ok, renew := s.validateJWT(m.JWT); ok {
+			err = s.HandleHeartbeat(m)
+			if renew {
+				conn.Write([]byte("renew")) // I need a better pattern to send renewal notifications
+			}
 		} else {
+			conn.Write([]byte("unauthorized"))
 			s.log.Error("Authentication failed!")
 			err = fmt.Errorf("Authentication failed!")
 		}
@@ -36,7 +39,7 @@ func (s *Server) handleInput(conn net.Conn) {
 		jwt, err = s.authenticate(m)
 		if err != nil {
 			s.log.Error("Authentication failed!")
-			conn.Write([]byte("Authentication failed!"))
+			conn.Write([]byte("unauthorized"))
 		} else {
 			conn.Write([]byte(jwt))
 		}

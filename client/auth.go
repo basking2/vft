@@ -9,27 +9,26 @@ import (
 	"crypto/tls"
 )
 
-func (c *Client) authenticate(server string, secret string) string {
+func (c *Client) authenticate() string {
 	var (
 		conn net.Conn
 		err error
 	)
 	h := vft.Message{
 		ClientId:    c.Id,
-		Secret:      secret,
+		Secret:      c.secret,
 		MessageType: "handshake",
 	}
 	b, err := json.Marshal(&h)
-	c.Log.Info("Attempting to authenticate with the server...")
 	if err != nil {
 		c.Log.Fatal("Unable to marshal handshake message into JSON")
 	}
 
 	if c.TLS {
-		conn, err = tls.Dial("tcp", server, c.TLSConfig)
+		conn, err = tls.Dial("tcp", c.server, c.TLSConfig)
 
 	} else {
-		conn, err = net.DialTimeout("tcp", server, 30*time.Second)
+		conn, err = net.DialTimeout("tcp", c.server, 30*time.Second)
 	}
 	if err != nil {
 		c.Log.Fatal("Error while handshaking with server: " + err.Error())

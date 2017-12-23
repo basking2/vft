@@ -20,6 +20,8 @@ type Client struct {
 	JWT       string
 	TLS       bool
 	TLSConfig *tls.Config
+	server    string
+	secret    string
 }
 
 func removeIndex(s []string, index int) []string {
@@ -72,9 +74,10 @@ func Run(c *Client, server string, certPath string) {
 		c.TLSConfig = c.configureTLS(certPath)
 		c.TLS = true
 	}
-
-	c.JWT = c.authenticate(server, "SharedSecret")
-	go runHeartbeat(server, c)
+	c.server = server
+	c.secret = "SharedSecret"
+	c.JWT = c.authenticate()
+	go c.runHeartbeat()
 
 	for _, listener := range c.Listeners {
 		go startTrap(listener, server, c)
