@@ -8,8 +8,8 @@ import (
 
 func (s *Server) handleInput(conn net.Conn) {
 	var (
-		err   error
-		jwt   string
+		err error
+		jwt string
 	)
 
 	defer conn.Close()

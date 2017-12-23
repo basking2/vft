@@ -1,6 +1,7 @@
 package Client
 
 import (
+	"crypto/tls"
 	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/satori/go.uuid"
@@ -10,7 +11,6 @@ import (
 	"net"
 	"os"
 	"time"
-	"crypto/tls"
 )
 
 type Client struct {

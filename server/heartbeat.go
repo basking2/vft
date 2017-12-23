@@ -13,4 +13,3 @@ func (s *Server) HandleHeartbeat(m *vft.Message) error {
 	s.log.Debug(fmt.Sprintf("Heartbeat received from %s", m.ClientId))
 	return s.db.RegisterHeartbeat(m)
 }
-		

@@ -1,9 +1,9 @@
 package Client
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"github.com/bbriggs/vft"
-	"crypto/tls"
 	"net"
 	"time"
 )
@@ -47,7 +47,7 @@ func handleConnection(conn net.Conn, s string, c *Client) {
 func reportConnection(s string, c *Client, m *vft.Message) {
 	var (
 		conn net.Conn
-		err error
+		err  error
 	)
 	if c.TLS {
 		conn, err = tls.Dial("tcp", s, c.TLSConfig)

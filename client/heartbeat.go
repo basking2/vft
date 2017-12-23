@@ -27,31 +27,31 @@ func (c *Client) runHeartbeat() {
 
 		if c.TLS {
 			conn, err := tls.Dial("tcp", c.server, c.TLSConfig) // Figure out how to do a timeout here
-		if err != nil {
-			c.Log.Fatal(err)
-		}
+			if err != nil {
+				c.Log.Fatal(err)
+			}
 
-		conn.Write(b)
-		data, err := ioutil.ReadAll(conn)
-		if string(data) == "renew" {
-			c.Log.Info("Renewing token...")
-			c.JWT = c.authenticate()
-		}
+			conn.Write(b)
+			data, err := ioutil.ReadAll(conn)
+			if string(data) == "renew" {
+				c.Log.Info("Renewing token...")
+				c.JWT = c.authenticate()
+			}
 
-		conn.Close()
+			conn.Close()
 		} else {
 			conn, err := net.DialTimeout("tcp", c.server, 30*time.Second)
-		if err != nil {
-			c.Log.Fatal(err)
-		}
+			if err != nil {
+				c.Log.Fatal(err)
+			}
 
-		conn.Write(b)
-		data, err := ioutil.ReadAll(conn)
-		if string(data) == "renew" {
-			c.JWT = c.authenticate()
-		}
+			conn.Write(b)
+			data, err := ioutil.ReadAll(conn)
+			if string(data) == "renew" {
+				c.JWT = c.authenticate()
+			}
 
-		conn.Close()
+			conn.Close()
 		}
 
 		time.Sleep(60 * time.Second)

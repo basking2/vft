@@ -28,7 +28,7 @@ func (s *Server) newJWT(m *vft.Message) (string, error) {
 	claims := customClaims{
 		m.ClientId,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Unix() + 86400,  // 24 hours
+			ExpiresAt: time.Now().Unix() + 86400, // 24 hours
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    "vft",
 		},
@@ -51,7 +51,7 @@ func (s *Server) validateJWT(tokenString string) (isValid bool, shouldRenew bool
 	if token.Valid {
 		isValid = true
 		claims, _ := token.Claims.(*customClaims)
-		if time.Now().Unix() + 300 > claims.StandardClaims.ExpiresAt {
+		if time.Now().Unix()+300 > claims.StandardClaims.ExpiresAt {
 			shouldRenew = true
 		}
 		s.log.Info(fmt.Sprintf("JWT claims: %d", claims.StandardClaims.ExpiresAt))

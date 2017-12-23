@@ -35,7 +35,7 @@ func New(bindAddress string) (*Server, error) {
 }
 
 func NewWithTLS(bindAddress string, certPath string, keyPath string) (*Server, error) {
-	var s = &Server {
+	var s = &Server{
 		log: logrus.WithField("context", "server"),
 	}
 	cer, err := tls.LoadX509KeyPair(certPath, keyPath)
@@ -45,7 +45,7 @@ func NewWithTLS(bindAddress string, certPath string, keyPath string) (*Server, e
 	}
 
 	config := &tls.Config{Certificates: []tls.Certificate{cer}}
-	l, err := tls.Listen("tcp", bindAddress, config) 	
+	l, err := tls.Listen("tcp", bindAddress, config)
 	if err != nil {
 		return nil, err
 	}

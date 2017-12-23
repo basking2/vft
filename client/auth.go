@@ -1,18 +1,18 @@
 package Client
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"github.com/bbriggs/vft"
-	"net"
 	"io/ioutil"
+	"net"
 	"time"
-	"crypto/tls"
 )
 
 func (c *Client) authenticate() string {
 	var (
 		conn net.Conn
-		err error
+		err  error
 	)
 	h := vft.Message{
 		ClientId:    c.Id,
