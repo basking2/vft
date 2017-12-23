@@ -13,7 +13,7 @@ import (
 func main() {
 	var (
 		serverAddress string
-		certPath string
+		certPath      string
 	)
 	app := cli.NewApp()
 	app.Version = "0.1.0"
