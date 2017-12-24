@@ -2,8 +2,8 @@ package Server
 
 import (
 	"fmt"
-	"github.com/bbriggs/vft"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/madurosecurity/vft"
 	"time"
 )
 

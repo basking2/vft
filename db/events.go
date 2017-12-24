@@ -1,11 +1,8 @@
 package db
 
 import (
-	//	"database/sql"
 	"fmt"
-	"github.com/bbriggs/vft"
-	//	_ "github.com/mattn/go-sqlite3"
-	//	"github.com/sirupsen/logrus"
+	"github.com/madurosecurity/vft"
 )
 
 func (d *Database) HandleEvent(m *vft.Message) error {

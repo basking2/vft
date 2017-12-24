@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/bbriggs/vft"
+	"github.com/madurosecurity/vft"
 	"io/ioutil"
 	"net"
 	"time"

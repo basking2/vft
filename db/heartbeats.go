@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"github.com/bbriggs/vft"
+	"github.com/madurosecurity/vft"
 )
 
 func (d *Database) RegisterHeartbeat(m *vft.Message) error {

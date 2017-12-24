@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/bbriggs/vft/server"
 	"fmt"
+	"github.com/madurosecurity/vft/server"
 	"github.com/urfave/cli"
 	"os"
 	"os/signal"
@@ -14,8 +14,8 @@ import (
 func main() {
 	var (
 		bindAddress string
-	 	certPath string
-	 	keyPath string
+		certPath    string
+		keyPath     string
 	)
 
 	app := cli.NewApp()
@@ -36,24 +36,24 @@ func main() {
 			Destination: &bindAddress,
 		},
 		cli.BoolFlag{
-			Name: "ssl",
+			Name:  "ssl",
 			Usage: "Start VFT with an SSL listener",
 		},
 		cli.StringFlag{
-			Name: "cert",
-			Usage: "SSL certificate",
+			Name:        "cert",
+			Usage:       "SSL certificate",
 			Destination: &certPath,
 		},
 		cli.StringFlag{
-			Name: "key",
-			Usage: "SSL key",
+			Name:        "key",
+			Usage:       "SSL key",
 			Destination: &keyPath,
 		},
 	}
 	app.Action = func(c *cli.Context) error {
 		var (
 			err error
-			s *Server.Server
+			s   *Server.Server
 		)
 		if c.Bool("ssl") {
 			fmt.Println("Attempting to start VFT server with ssl...")

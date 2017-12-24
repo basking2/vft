@@ -3,7 +3,7 @@ package Client
 import (
 	"crypto/tls"
 	"encoding/json"
-	"github.com/bbriggs/vft"
+	"github.com/madurosecurity/vft"
 	"io/ioutil"
 	"net"
 	"time"

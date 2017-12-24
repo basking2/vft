@@ -2,7 +2,7 @@ package Server
 
 import (
 	"fmt"
-	"github.com/bbriggs/vft"
+	"github.com/madurosecurity/vft"
 )
 
 func (s *Server) HandleHeartbeat(m *vft.Message) error {
