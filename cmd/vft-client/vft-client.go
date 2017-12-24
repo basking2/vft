@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bbriggs/vft/client"
+	"github.com/madurosecurity/vft/client"
 	"github.com/urfave/cli"
 	"os"
 	"os/signal"

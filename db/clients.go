@@ -1,11 +1,9 @@
 package db
 
 import (
-	//	"database/sql"
 	"fmt"
-	"github.com/bbriggs/vft"
+	"github.com/madurosecurity/vft"
 	_ "github.com/mattn/go-sqlite3"
-	//	"github.com/sirupsen/logrus"
 )
 
 func (d *Database) registerClient(m *vft.Message) {

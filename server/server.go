@@ -3,7 +3,7 @@ package Server
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/bbriggs/vft/db"
+	"github.com/madurosecurity/vft/db"
 	"github.com/sirupsen/logrus"
 	"net"
 )
