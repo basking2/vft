@@ -8,46 +8,43 @@ VFT straddles the line between a network intrusion detection system (NIDS), host
 
 ### How it works
 
-VFT is a single binary that runs in three modes: server, client, and standalone. 
+VFT is a pair of binaries that work as a client and a server.
 
-#### Server mode
+#### Server
 
-VFT server mode listens for incoming client connections, correlates activity, and reports any potentially interesting anomalies. Events such as frequent hits to the same "trap" port across all clients, frequent hits from the same address across all clients, and frequent hits to the same client are all examples of activity that will be alerted on.
+`vft-server` listens for incoming client connections, correlates activity, and reports any potentially interesting anomalies. Events such as frequent hits to the same "trap" port across all clients, frequent hits from the same address across all clients, and frequent hits to the same client are all examples of activity that will be alerted on.
 
-The server binds to `127.0.0.1:9999` by default.
+The server binds to `0.0.0.0:9999` by default.
 
 Example of starting the server:
 ```
-$ vft --bind 0.0.0.0:9999 server
+$ vft-server --bind 0.0.0.0:9999
+```
+
+Or with SSL:
+```
+$ vft-server --ssl --cert ./cert.pem --key ./key.pem --bind 0.0.0.0:9999
 ```
 
 #### Client mode
 
-VFT client mode starts a TCP listener on 5 random "common" ports and listens for connections. Upon receiving a connection, VFT closes it and sends a report of the connection to the server which will then attempt to correlate the activity. Client mode requires a VFT server to operate properly.
+`vft-client` starts a TCP listener on 5 random "common" ports and listens for connections. Upon receiving a connection, VFT closes it and sends a report of the connection to the server which will then attempt to correlate the activity. Client mode requires a VFT server to operate properly.
 
 Example of starting the client:
 ```
-$ vft --server vft.yourcompany.net:9999 client
+$ vft-client --server vft.yourcompany.net:9999
 ```
 
-#### Standalone
-
-Many organizations already have event correlation in place. With those users in mind, VFT also supports standalone mode, which behaves like a client but does not try to perform any interaction with a VFT server. Instead, it simply sends a JSON message to the destination IP and port so that the user's pre-installed event correlation can use the data. This is ideal for people who already have an existing ELK or Splunk installation and want to add VFT to their threat detection toolkit.
-
-Example of starting a standalone instance:
+Passing the `--cert` option autmatically enables SSL:
 ```
-vft --dest elk.yourcompany.net:9300 standalone
+$ vft-client --cert ./cert.pem --server vft.yourcompany.net:9999
 ```
 
-## Installation
+### Installation
 
-### Linux
-Clone the repo + Build the binary
-```
-git clone git@gitlab.com:bbriggs1/vft.git
-cd vft
-./build.sh
-```
+Instructions forthcoming for the following:
+  - Downloads
+  - Install as package
+  - Docker container
+  - Build from source
 
-### Windows
-Check back later.
