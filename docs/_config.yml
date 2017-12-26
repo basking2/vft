@@ -1,0 +1,12 @@
+# Setup
+name:         Venus Fly Trap
+tagline:      A network anomaly detection engine
+baseurl:      ""
+locale:       "en"
+
+# Gems
+gems:
+  - jekyll-paginate
+
+#Others
+markdown: kramdown
