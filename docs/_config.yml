@@ -1,6 +1,6 @@
 # Setup
 name:         Venus Fly Trap
-tagline:      A network anomaly detection engine
+tagline:      A network anomaly detection engine in progress
 baseurl:      ""
 locale:       "en"
 
