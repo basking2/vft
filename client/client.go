@@ -68,14 +68,14 @@ func New() (*Client, error) {
 	return c, nil
 }
 
-func Run(c *Client, server string, certPath string) {
+func (c *Client) Run(secret string, server string, certPath string) {
 	c.Log.Info("Starting VFT client...")
 	if certPath != "" {
 		c.TLSConfig = c.configureTLS(certPath)
 		c.TLS = true
 	}
 	c.server = server
-	c.secret = "SharedSecret"
+	c.secret = secret
 	c.JWT = c.authenticate()
 	go c.runHeartbeat()
 
@@ -93,7 +93,7 @@ func getUUID(log *logrus.Entry) string {
 		checkErr(err)
 		u, err := uuid.FromString(string(dat))
 		if err != nil {
-			log.Error(fmt.Sprintf("Invalid UUID in %s. Replacing with a new one...", f))
+			log.Error(fmt.Sprintf("Invalid UUID in %s with a new one", f))
 			return fmt.Sprintf("%s", uuid.NewV4())
 		} else {
 			return fmt.Sprintf("%s", u)

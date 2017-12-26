@@ -14,6 +14,7 @@ func main() {
 	var (
 		serverAddress string
 		certPath      string
+		secret        string
 	)
 	app := cli.NewApp()
 	app.Version = "0.1.0"
@@ -22,7 +23,7 @@ func main() {
 	app.Authors = []cli.Author{
 		cli.Author{
 			Name:  "Bren \"fraq\" Briggs",
-			Email: "fraq@fraq.io",
+			Email: "code@fraq.io",
 		},
 	}
 	app.Flags = []cli.Flag{
@@ -37,13 +38,18 @@ func main() {
 			Usage:       "SSL certificate of VFT server. Setting this option enables SSL/TLS.",
 			Destination: &certPath,
 		},
+		cli.StringFlag{
+			Name: "secret",
+			Usage: "Shared secret for authenticating the client. Must be same on server side. Optional.",
+			Destination: &secret,
+		},
 	}
 	app.Action = func(c *cli.Context) error {
 		v, err := Client.New()
 		if err != nil {
 			return err
 		}
-		Client.Run(v, serverAddress, certPath)
+		v.Run(secret, serverAddress, certPath)
 		v.Log.Println("Press Ctrl+C to end")
 		waitForCtrlC()
 		return nil
