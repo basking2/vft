@@ -13,7 +13,7 @@ type customClaims struct {
 }
 
 func (s *Server) authenticate(m *vft.Message) (string, error) {
-	if m.Secret == "SharedSecret" {
+	if m.Secret == s.secret {
 		return s.newJWT(m)
 	} else {
 		s.log.Info("Bad secret")
@@ -54,7 +54,6 @@ func (s *Server) validateJWT(tokenString string) (isValid bool, shouldRenew bool
 		if time.Now().Unix()+300 > claims.StandardClaims.ExpiresAt {
 			shouldRenew = true
 		}
-		s.log.Info(fmt.Sprintf("JWT claims: %d", claims.StandardClaims.ExpiresAt))
 	} else if ve, ok := err.(*jwt.ValidationError); ok {
 		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
 			s.log.Error("Malformed token")

@@ -40,5 +40,8 @@ func (c *Client) authenticate() string {
 		c.Log.Fatal("Unable to read server response: " + err.Error())
 	}
 	defer conn.Close()
+	if string(data) == "unauthorized" {
+		c.Log.Fatal("Authentication failed!")
+	}
 	return string(data)
 }

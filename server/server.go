@@ -12,6 +12,7 @@ type Server struct {
 	listener net.Listener
 	log      *logrus.Entry
 	db       *db.Database
+	secret   string
 }
 
 func New(bindAddress string) (*Server, error) {
@@ -60,10 +61,10 @@ func NewWithTLS(bindAddress string, certPath string, keyPath string) (*Server, e
 	return s, nil
 }
 
-func Serve(s *Server) {
+func (s *Server) Serve(secret string) {
 	defer s.log.Info("VFT server stopped")
 	s.log.Info(fmt.Sprintf("Starting VFT server on port %s", s.listener.Addr()))
-
+	s.secret = secret
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {

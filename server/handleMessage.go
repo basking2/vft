@@ -1,7 +1,6 @@
 package Server
 
 import (
-	"fmt"
 	"github.com/madurosecurity/vft"
 	"net"
 )
@@ -33,13 +32,12 @@ func (s *Server) handleInput(conn net.Conn) {
 		} else {
 			conn.Write([]byte("unauthorized"))
 			s.log.Error("Authentication failed!")
-			err = fmt.Errorf("Authentication failed!")
 		}
 	case "handshake":
 		jwt, err = s.authenticate(m)
 		if err != nil {
-			s.log.Error("Authentication failed!")
 			conn.Write([]byte("unauthorized"))
+			s.log.Error("Authentication failed!")
 		} else {
 			conn.Write([]byte(jwt))
 		}

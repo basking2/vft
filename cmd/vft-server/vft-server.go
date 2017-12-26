@@ -16,6 +16,7 @@ func main() {
 		bindAddress string
 		certPath    string
 		keyPath     string
+		secret      string
 	)
 
 	app := cli.NewApp()
@@ -49,6 +50,11 @@ func main() {
 			Usage:       "SSL key",
 			Destination: &keyPath,
 		},
+		cli.StringFlag{
+			Name: "secret",
+			Usage: "Shared secret for authenticating clients. Must be same on client side.",
+			Destination: &secret,
+		},
 	}
 	app.Action = func(c *cli.Context) error {
 		var (
@@ -65,7 +71,7 @@ func main() {
 		if err != nil {
 			return err
 		}
-		Server.Serve(s)
+		s.Serve(secret)
 		waitForCtrlC()
 		return nil
 	}
