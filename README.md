@@ -6,10 +6,6 @@ _A network anomaly detection engine_
 
 VFT straddles the line between a network intrusion detection system (NIDS), host-based intrustion detection system (HIDS), and a honeypot. It is simultaneously all and none of these. Designed to work best across a fleet of clients, VFT detects connections and potential scanning activity that may evade your NIDS or HIDS, but without requiring setup of heavier systems such ELK or relying on event correlation from Datadog (although that is totally an option). 
 
-### How it works
-
-VFT is a pair of binaries that work as a client and a server.
-
 ## Quick start
 
 #### Server
@@ -23,6 +19,10 @@ Or with Docker:
 #### Client
 
 `vft-client --server vft.yourcompany.net:9999 --cert some-cert.pem`
+
+### How it works
+
+VFT is a pair of binaries that work as a client and a server.
 
 #### Server
 
