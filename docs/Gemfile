@@ -2,7 +2,7 @@
 source "https://rubygems.org"
 gemspec
 
-gem 'jekyll'
+gem 'jekyll', '>= 3.9.0'
 gem 'jekyll-paginate'
-gem 'kramdown'
+gem 'kramdown', '>= 2.3.1'
 gem 'pygments.rb'
