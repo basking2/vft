@@ -17,7 +17,7 @@ RUN go get ./...
 RUN go build -o vft-client .
 
 # Install binaries
-FROM alpine:latest
+FROM alpine:3.18.3
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/madurosecurity/vft/cmd/vft-server .
